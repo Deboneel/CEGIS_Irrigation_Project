@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Irrigation Atlas — Bangladesh, Rabi 2023–24 | CEGIS</title>
+<meta name="description" content="District-level irrigation thematic mapping for Bangladesh — surface water, groundwater, power source, and groundwater depth zoning. Prepared from BADC data via CEGIS.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0D2B36;
+    --ink-2:#123846;
+    --paper:#EAF0EA;
+    --paper-card:#F6F8F5;
+    --surface:#2D6CA3;
+    --surface-soft:#DCE9F2;
+    --ground:#157A6E;
+    --ground-soft:#D9EEEA;
+    --power:#C97A1E;
+    --power-soft:#F5E3C8;
+    --safe:#4C9A4A;
+    --moderate:#D9A03B;
+    --deep:#C9542C;
+    --critical:#7A2E22;
+    --ink-soft:#5B7076;
+    --line:rgba(13,43,54,0.14);
+    --paper-line:rgba(13,43,54,0.10);
+    --maxw:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+
+  /* ---- top progress (mobile depth indicator) ---- */
+  #topProgress{
+    position:fixed;top:0;left:0;height:3px;width:0%;
+    background:var(--safe);z-index:60;transition:background .3s ease;
+  }
+
+  /* ---- nav ---- */
+  nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(234,240,234,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--paper-line);
+  }
+  .navrow{
+    max-width:var(--maxw);margin:0 auto;padding:14px 28px;
+    display:flex;align-items:center;justify-content:space-between;gap:16px;
+  }
+  .brand{font-family:'Fraunces',serif;font-weight:600;font-size:1rem;white-space:nowrap;}
+  .brand span{color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;font-weight:400;font-size:0.72rem;display:block;margin-top:1px;letter-spacing:0.02em;}
+  .navlinks{display:flex;gap:22px;flex-wrap:wrap;}
+  .navlinks a{
+    font-size:0.82rem;text-decoration:none;color:var(--ink-soft);
+    font-weight:500;letter-spacing:0.01em;
+  }
+  .navlinks a:hover{color:var(--ink);}
+
+  /* ---- hero ---- */
+  header.hero{
+    background:radial-gradient(ellipse 90% 70% at 30% -10%, #16424F 0%, var(--ink) 55%, var(--ink) 100%);
+    color:var(--paper);
+    padding:90px 0 70px;
+    position:relative;
+    overflow:hidden;
+  }
+  header.hero::after{
+    content:"";position:absolute;right:-10%;bottom:-30%;width:60%;height:140%;
+    background:radial-gradient(circle, rgba(45,108,163,0.18), transparent 70%);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:0.78rem;letter-spacing:0.08em;
+    text-transform:uppercase;color:#9FC4D6;margin-bottom:22px;display:flex;gap:10px;align-items:center;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--safe);}
+  .herotitle{
+    font-size:clamp(2.1rem, 5vw, 3.6rem);
+    line-height:1.08;
+    max-width:880px;
+    font-weight:600;
+  }
+  .herotitle .accent-num{
+    font-size:clamp(2.6rem,7vw,4.6rem);
+    font-weight:700;
+    background:linear-gradient(180deg,#fff 0%, #9FC4D6 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .herosub{
+    margin-top:24px;max-width:620px;color:#C9D9DC;font-size:1.05rem;
+  }
+  .herometa{
+    margin-top:42px;display:flex;flex-wrap:wrap;gap:28px;
+  }
+  .herometa div{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:#8FAEB5;}
+  .herometa strong{display:block;color:var(--paper);font-size:0.95rem;font-family:'Inter',sans-serif;font-weight:600;margin-top:3px;}
+  .hero-bars{
+    margin-top:48px;display:flex;align-items:flex-end;gap:6px;height:90px;max-width:520px;
+  }
+  .hero-bars .bar{flex:1;border-radius:3px 3px 0 0;position:relative;}
+  .hero-bars .bar span{
+    position:absolute;bottom:-22px;left:0;right:0;text-align:center;
+    font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:#8FAEB5;
+  }
+
+  /* ---- section shells ---- */
+  section{padding:84px 0;}
+  .section-light{background:var(--paper);}
+  .section-dark{background:var(--ink);color:var(--paper);}
+  .kicker{
+    font-family:'IBM Plex Mono',monospace;font-size:0.76rem;text-transform:uppercase;
+    letter-spacing:0.08em;color:var(--ink-soft);margin-bottom:10px;display:block;
+  }
+  .section-dark .kicker{color:#8FAEB5;}
+  h2.h2{font-size:clamp(1.6rem,3.2vw,2.3rem);max-width:760px;}
+  .lede{max-width:680px;color:var(--ink-soft);margin-top:16px;font-size:1.02rem;}
+  .section-dark .lede{color:#B7CBCF;}
+
+  /* ---- methodology chips ---- */
+  .specgrid{
+    margin-top:40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;
+    background:var(--paper-line);border:1px solid var(--paper-line);
+  }
+  .specitem{background:var(--paper-card);padding:20px 22px;}
+  .specitem .lbl{font-family:'IBM Plex Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-soft);}
+  .specitem .val{margin-top:6px;font-size:0.95rem;font-weight:500;}
+  .specitem .val.mono{font-family:'IBM Plex Mono',monospace;font-size:0.85rem;}
+
+  /* ---- layer (map) sections ---- */
+  .layer{padding:90px 0;border-top:1px solid var(--paper-line);}
+  .layer-head{display:flex;gap:24px;align-items:baseline;flex-wrap:wrap;}
+  .layer-num{
+    font-family:'IBM Plex Mono',monospace;font-size:0.85rem;
+    border:1px solid currentColor;border-radius:999px;padding:4px 12px;flex-shrink:0;
+  }
+  .layer-title{font-size:clamp(1.5rem,3vw,2rem);}
+  .layer-grid{
+    margin-top:44px;display:grid;grid-template-columns:1.35fr 1fr;gap:48px;align-items:start;
+  }
+  @media (max-width:880px){.layer-grid{grid-template-columns:1fr;}}
+
+  figure.mapfig{margin:0;}
+  figure.mapfig a{display:block;border:1px solid var(--paper-line);border-radius:10px;overflow:hidden;background:#fff;}
+  figure.mapfig img{width:100%;height:auto;}
+  figure.mapfig figcaption{
+    margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:0.74rem;color:var(--ink-soft);
+    display:flex;justify-content:space-between;gap:10px;
+  }
+  figure.mapfig figcaption a.zoomlink{text-decoration:underline;flex-shrink:0;}
+
+  .findings{margin-top:0;}
+  .findings ul{margin:18px 0 0;padding:0;list-style:none;}
+  .findings li{
+    padding:12px 0;border-top:1px solid var(--paper-line);font-size:0.95rem;
+  }
+  .findings li:first-child{border-top:none;}
+  .findings li strong{font-weight:600;}
+
+  .statrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:14px;margin-top:24px;}
+  .statcard{
+    background:var(--paper-card);border:1px solid var(--paper-line);border-radius:10px;
+    padding:16px 14px;
+  }
+  .statcard .num{font-family:'Fraunces',serif;font-weight:600;font-size:1.5rem;}
+  .statcard .lbl{font-family:'IBM Plex Mono',monospace;font-size:0.66rem;color:var(--ink-soft);margin-top:4px;text-transform:uppercase;letter-spacing:0.04em;}
+
+  .takeaway{
+    margin-top:36px;padding:22px 24px;border-radius:10px;
+    background:var(--paper-card);border-left:4px solid var(--accent,var(--ink));
+    font-size:0.96rem;
+  }
+  .takeaway strong{display:block;font-family:'Fraunces',serif;font-size:1.02rem;margin-bottom:6px;font-weight:600;}
+
+  /* accent variants per layer */
+  .layer.surface{--accent:var(--surface);}
+  .layer.ground{--accent:var(--ground);}
+  .layer.power{--accent:var(--power);}
+  .layer.zoning{--accent:var(--deep);}
+  .layer .layer-num{color:var(--accent,var(--ink));}
+
+  /* ---- zoning legend chips ---- */
+  .zonelegend{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+  .zonechip{
+    display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:0.74rem;
+    background:var(--paper-card);border:1px solid var(--paper-line);border-radius:999px;padding:6px 12px;
+  }
+  .zonechip .sw{width:10px;height:10px;border-radius:50%;}
+
+  /* ---- spotlight panel ---- */
+  .spotlight{
+    background:linear-gradient(160deg,#0D2B36 0%,#12333F 60%,#16424F 100%);
+    color:var(--paper);padding:90px 0;border-top:1px solid rgba(255,255,255,0.08);
+  }
+  .spot-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;margin-top:44px;align-items:center;}
+  @media (max-width:880px){.spot-grid{grid-template-columns:1fr;}}
+  .spot-viz{
+    border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:28px;background:rgba(255,255,255,0.03);
+  }
+  .spot-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+  .spot-row .name{width:88px;font-size:0.8rem;color:#B7CBCF;flex-shrink:0;}
+  .spot-row .track{flex:1;height:10px;background:rgba(255,255,255,0.08);border-radius:6px;overflow:hidden;display:flex;}
+  .spot-row .seg{height:100%;}
+  .spot-row .pct{width:42px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:#8FAEB5;flex-shrink:0;}
+  .spot-legend{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap;}
+  .spot-legend span{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;display:flex;align-items:center;gap:6px;color:#B7CBCF;}
+  .spot-legend .sw{width:9px;height:9px;border-radius:50%;}
+  .spot-text p{color:#C9D9DC;margin:0 0 16px;}
+  .spot-text .punch{
+    font-family:'Fraunces',serif;font-size:1.25rem;font-weight:600;color:#fff;margin-bottom:18px;
+  }
+
+  /* ---- conclusion ---- */
+  .gapcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px;margin-top:44px;}
+  .gapcard{
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;
+    padding:26px 24px;
+  }
+  .gapcard .gtag{
+    font-family:'IBM Plex Mono',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.05em;
+    padding:3px 10px;border-radius:999px;display:inline-block;margin-bottom:14px;
+  }
+  .gapcard h4{font-size:1.05rem;color:#fff;margin-bottom:8px;}
+  .gapcard p{color:#B7CBCF;font-size:0.9rem;margin:0;}
+
+  /* ---- footer ---- */
+  footer{background:#081A21;color:#7B9499;padding:48px 0;font-size:0.82rem;}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;}
+  footer a{text-decoration:underline;}
+
+  /* ---- depth rail (desktop signature element) ---- */
+  .depth-rail{
+    position:fixed;right:26px;top:50%;transform:translateY(-50%);
+    z-index:40;display:flex;flex-direction:column;align-items:center;gap:14px;
+  }
+  .depth-track{
+    position:relative;width:3px;height:280px;background:rgba(13,43,54,0.15);border-radius:3px;
+  }
+  .depth-tick{position:absolute;left:50%;transform:translate(-50%,-50%);}
+  .depth-tick::before{content:"";display:block;width:8px;height:1px;background:rgba(13,43,54,0.3);margin:0 auto;}
+  .depth-tick span{
+    position:absolute;left:14px;top:-7px;font-family:'IBM Plex Mono',monospace;font-size:0.62rem;
+    color:var(--ink-soft);white-space:nowrap;
+  }
+  .depth-marker{
+    position:absolute;left:50%;transform:translate(-50%,-50%);width:11px;height:11px;border-radius:50%;
+    background:var(--safe);box-shadow:0 0 0 3px rgba(234,240,234,0.9);transition:background .25s ease;
+  }
+  .depth-readout{
+    font-family:'IBM Plex Mono',monospace;font-size:0.68rem;color:var(--safe);
+    writing-mode:vertical-rl;text-orientation:mixed;transition:color .25s ease;
+  }
+  @media (max-width:979px){.depth-rail{display:none;}}
+  @media (min-width:980px){#topProgress{display:none;}}
+
+  @media (max-width:600px){
+    .wrap{padding:0 18px;}
+    section,.layer{padding:60px 0;}
+    .navlinks{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<div id="topProgress"></div>
+
+<div class="depth-rail" aria-hidden="true">
+  <div class="depth-track">
+    <div class="depth-tick" style="top:0%;"><span>0 m</span></div>
+    <div class="depth-tick" style="top:23.75%;"><span>7.6 m</span></div>
+    <div class="depth-tick" style="top:35.3%;"><span>11.3 m</span></div>
+    <div class="depth-tick" style="top:62.5%;"><span>20 m</span></div>
+    <div class="depth-tick" style="top:100%;"><span>31 m+</span></div>
+    <div class="depth-marker" id="depthMarker" style="top:0%;"></div>
+  </div>
+  <div class="depth-readout" id="depthReadout">0.0 m · scroll = depth</div>
+</div>
+
+<nav>
+  <div class="navrow">
+    <div class="brand">Irrigation Atlas, Rabi 2023–24 <span>CEGIS × BADC · 64 districts</span></div>
+    <div class="navlinks">
+      <a href="#overview">Overview</a>
+      <a href="#layer1">Baseline</a>
+      <a href="#layer2">Surface</a>
+      <a href="#layer3">Groundwater</a>
+      <a href="#layer4">Power</a>
+      <a href="#layer5">Zoning</a>
+      <a href="#conclusion">Conclusion</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="overview">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span> District-level thematic mapping · Rabi 2023–24</div>
+    <h1 class="herotitle">Bangladesh irrigates <span class="accent-num">72%</span> of its cultivated land. The headline hides a fracture this report maps district by district.</h1>
+    <p class="herosub">Rain carries the Aman season. The dry Rabi season — November to March — runs almost entirely on pumped water, and how well each district manages that supply decides national food security. Five maps trace where that water comes from, what powers it, and how much of the aquifer is left.</p>
+    <div class="herometa">
+      <div>Data source<strong>BADC, distributed via CEGIS</strong></div>
+      <div>Coverage<strong>64 districts, Rabi 2023–24</strong></div>
+      <div>Projection<strong>BTM / Everest 1830</strong></div>
+      <div>Net cultivated<strong>8.02 M ha</strong></div>
+    </div>
+    <div class="hero-bars" aria-hidden="true">
+      <div class="bar" style="height:93%;background:#4C9A4A;"><span>Rajshahi 93%</span></div>
+      <div class="bar" style="height:89%;background:#4C9A4A;"><span>Rangpur 89%</span></div>
+      <div class="bar" style="height:86%;background:#5BAE58;"><span>Mymensingh 86%</span></div>
+      <div class="bar" style="height:75%;background:#9FC44A;"><span>Khulna 75%</span></div>
+      <div class="bar" style="height:64%;background:#D9A03B;"><span>Dhaka 64%</span></div>
+      <div class="bar" style="height:61%;background:#D98E2B;"><span>Chittagong 61%</span></div>
+      <div class="bar" style="height:59%;background:#C97A1E;"><span>Sylhet 59%</span></div>
+      <div class="bar" style="height:31%;background:#C9542C;"><span>Barisal 31%</span></div>
+    </div>
+  </div>
+</header>
+
+<section class="section-light">
+  <div class="wrap">
+    <span class="kicker">Why this matters</span>
+    <h2 class="h2">A national average hides who has water, who pays more to pump it, and who's drawing the aquifer down to get it.</h2>
+    <p class="lede">A 72% national irrigation rate says almost nothing about sustainability, access, cost, or which regions are quietly being left behind. The district-level spatial view answers those questions in a way a single table cannot. This report maps five variables — irrigation coverage, surface water reliance, groundwater reliance, power source, and groundwater depth — across all 64 districts of Bangladesh.</p>
+
+    <div class="specgrid">
+      <div class="specitem">
+        <div class="lbl">Boundary data</div>
+        <div class="val mono">District_02.shp — 64 polygons, DISTCODE</div>
+      </div>
+      <div class="specitem">
+        <div class="lbl">Attribute data</div>
+        <div class="val mono">Irrigation_03.xlsx — area figures, ha</div>
+      </div>
+      <div class="specitem">
+        <div class="lbl">Join method</div>
+        <div class="val mono">Add Join on DISTCODE</div>
+      </div>
+      <div class="specitem">
+        <div class="lbl">Coordinate system</div>
+        <div class="val mono">BTM, Everest 1830, 90°E, SF 0.9996</div>
+      </div>
+      <div class="specitem">
+        <div class="lbl">Groundwater layer</div>
+        <div class="val mono">GWL_2023 — WGS84 → BTM, Define Projection</div>
+      </div>
+      <div class="specitem">
+        <div class="lbl">Base layers</div>
+        <div class="val mono">Districts · Rivers · Sundarbans · Kaptai Lake</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LAYER 1 — BASELINE -->
+<section class="layer" id="layer1">
+  <div class="wrap">
+    <div class="layer-head">
+      <span class="layer-num">Layer 01</span>
+      <h3 class="layer-title">Net cultivated, irrigated &amp; non-irrigated area</h3>
+    </div>
+    <p class="lede">Bar-chart symbology on the district shapefile: net cultivated area in blue, total irrigated in red, non-irrigated in green. Tall red bars sitting close to blue mean most cultivated land is already irrigated; dominant green bars mean it isn't.</p>
+
+    <div class="layer-grid">
+      <figure class="mapfig">
+        <a href="images/Spatial_analysis1.png" target="_blank" rel="noopener">
+          <img src="images/Spatial_analysis1.png" alt="Spatial analysis of net cultivated and irrigation areas in Bangladesh, district bar-chart map with violin-box statistical panel" loading="lazy">
+        </a>
+        <figcaption><span>Fig 1 — Spatial Analysis of Net Cultivated and Irrigation Areas</span><a class="zoomlink" href="images/Spatial_analysis1.png" target="_blank" rel="noopener">open full size ↗</a></figcaption>
+      </figure>
+
+      <div class="findings">
+        <div class="statrow">
+          <div class="statcard"><div class="num">5.78M</div><div class="lbl">ha irrigated</div></div>
+          <div class="statcard"><div class="num">2.25M</div><div class="lbl">ha non-irrigated</div></div>
+          <div class="statcard"><div class="num">99%</div><div class="lbl">peak districts</div></div>
+          <div class="statcard"><div class="num">31%</div><div class="lbl">Barisal, lowest</div></div>
+        </div>
+        <ul>
+          <li>Rajshahi, Rangpur and Mymensingh divisions lead at <strong>93%, 89%, 86%</strong> irrigation; Rajshahi, Narsingdi and Nawabganj individually reach <strong>99%</strong>.</li>
+          <li>Barisal division sits lowest at <strong>31%</strong> — salinity, flooding and tidal influence limit irrigation infrastructure.</li>
+          <li>Hill tracts (Bandarban, Rangamati, Khagrachhari) are also low — terrain restricts pump deployment.</li>
+          <li><strong>2.25 M ha</strong> remains non-irrigated, concentrated in the coastal south and CHT — the most drought-vulnerable land during Rabi.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="layer-grid" style="margin-top:56px;">
+      <figure class="mapfig">
+        <a href="images/donut_combined_NCA_TIA_NIA.png" target="_blank" rel="noopener">
+          <img src="images/donut_combined_NCA_TIA_NIA.png" alt="District-wise natural-breaks classification donuts for net cultivated area, total irrigated area and non-irrigated area" loading="lazy">
+        </a>
+        <figcaption><span>Fig 2 — District-wise Classification of Irrigation Variables</span><a class="zoomlink" href="images/donut_combined_NCA_TIA_NIA.png" target="_blank" rel="noopener">open full size ↗</a></figcaption>
+      </figure>
+      <div class="findings">
+        <ul>
+          <li>Most districts are small-to-medium cultivators — <strong>52%</strong> fall in the bottom two NCA classes.</li>
+          <li>Irrigation is concentrated in few districts — <strong>62%</strong> sit in the lowest two irrigated classes; only 3 districts exceed 194,883 ha.</li>
+          <li>Non-irrigated area is actually low in most districts (<strong>47%</strong> under 11,574 ha) — but the coastal-and-hill-tract outlier tail keeps the national gap open.</li>
+        </ul>
+        <div class="takeaway">
+          <strong>Reading the two maps together</strong>
+          The bar-chart map shows where the pattern exists geographically; the donuts show how districts distribute statistically. Coverage is genuinely high in the northwest — flat terrain, shallow groundwater, dense tube-well coverage — but a structurally resistant tail of coastal-saline and hilly districts keeps the national non-irrigated figure from falling further.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LAYER 2 — SURFACE WATER -->
+<section class="layer surface" id="layer2">
+  <div class="wrap">
+    <div class="layer-head">
+      <span class="layer-num">Layer 02</span>
+      <h3 class="layer-title">Surface water–irrigated area</h3>
+    </div>
+    <p class="lede">Choropleth, single field (Surface Water Irrigated Area), 7 manual classes, dark purple to yellow. Canals, rivers and low-lift pumps drawing from surface sources — mapped across all 64 districts.</p>
+
+    <div class="layer-grid">
+      <figure class="mapfig">
+        <a href="images/SW_Distribution.png" target="_blank" rel="noopener">
+          <img src="images/SW_Distribution.png" alt="Choropleth map of surface water irrigated area by district in Bangladesh, Rabi 2023-24" loading="lazy">
+        </a>
+        <figcaption><span>Fig 3 — Spatial Distribution of Surface Water–Irrigated Area</span><a class="zoomlink" href="images/SW_Distribution.png" target="_blank" rel="noopener">open full size ↗</a></figcaption>
+      </figure>
+
+      <div class="findings">
+        <div class="statrow">
+          <div class="statcard"><div class="num">1,617K</div><div class="lbl">ha nationally</div></div>
+          <div class="statcard"><div class="num">42%</div><div class="lbl">held by top 9 districts</div></div>
+          <div class="statcard"><div class="num">28%</div><div class="lbl">of total irrigated area</div></div>
+        </div>
+        <ul>
+          <li>The top class (53,000–149,818 ha) holds only 9 districts but covers <strong>42%</strong> of all surface-irrigated land.</li>
+          <li>Sunamganj, Sylhet, Gopalganj and the Barisal belt are the largest users — active floodplains with perennial river access.</li>
+          <li>The northwest (Rajshahi, Rangpur) shows very low surface-water use, not because of less irrigation overall, but because groundwater via tube wells replaced surface sources decades ago.</li>
+          <li>Hill tracts are also low — rivers there are fast-flowing and unsuitable for low-lift pumping.</li>
+        </ul>
+        <div class="takeaway">
+          <strong>A geography story</strong>
+          Where rivers are slow, wide and seasonally full — the south and northeast — surface irrigation works well. Where groundwater is shallow and reliable — the northwest — it was abandoned in favour of tube wells decades ago. 1,617K ha sounds large but is only 28% of total irrigated area: groundwater dominates nationally.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LAYER 3 — GROUNDWATER -->
+<section class="layer ground" id="layer3">
+  <div class="wrap">
+    <div class="layer-head">
+      <span class="layer-num">Layer 03</span>
+      <h3 class="layer-title">Groundwater–irrigated area</h3>
+    </div>
+    <p class="lede">Choropleth, single field, 7 classes, light-to-dark blue gradient. The contrast here is sharper than the surface water map — groundwater is the primary driver of irrigation geography in Bangladesh.</p>
+
+    <div class="layer-grid">
+      <figure class="mapfig">
+        <a href="images/GW_Distribution.png" target="_blank" rel="noopener">
+          <img src="images/GW_Distribution.png" alt="Choropleth map of groundwater irrigated area by district in Bangladesh, Rabi 2023-24" loading="lazy">
+        </a>
+        <figcaption><span>Fig 4 — Spatial Distribution of Ground Water–Irrigated Area</span><a class="zoomlink" href="images/GW_Distribution.png" target="_blank" rel="noopener">open full size ↗</a></figcaption>
+      </figure>
+
+      <div class="findings">
+        <div class="statrow">
+          <div class="statcard"><div class="num">4,161K</div><div class="lbl">ha — 2.6× surface water</div></div>
+          <div class="statcard"><div class="num">72%</div><div class="lbl">of total irrigated area</div></div>
+          <div class="statcard"><div class="num">40.3%</div><div class="lbl">held by top 9 districts</div></div>
+        </div>
+        <ul>
+          <li>The "Very Large" class (130,000–254,178 ha) — 9 districts — covers <strong>40.3%</strong> of all groundwater irrigation; the bottom 9 districts contribute just 0.1%.</li>
+          <li>Northwest concentration is structural: shallow water table (3–7 m), flat alluvial plain, decades of STW/DTW investment make extraction cheap and reliable.</li>
+          <li>Southern districts (Barisal, Khulna coast) show near-zero groundwater use — saline intrusion makes extracted water unsuitable for crops.</li>
+          <li>Hill tracts are low for a different reason — hard-rock aquifers limit yield and terrain blocks tube-well deployment.</li>
+        </ul>
+        <div class="takeaway">
+          <strong>The system's load-bearing layer</strong>
+          At 4,161K ha, groundwater carries 72% of Bangladesh's total irrigated area. That dependence is geographically uneven — the northwest is built on it, the south has almost none — and it sets up the central risk this report tracks: the same districts showing 99% irrigation rates are drawing the aquifer down every year. That makes groundwater zoning the most critical layer in the whole report.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LAYER 4 — POWER -->
+<section class="layer power" id="layer4">
+  <div class="wrap">
+    <div class="layer-head">
+      <span class="layer-num">Layer 04</span>
+      <h3 class="layer-title">Irrigation by diesel &amp; electric power</h3>
+    </div>
+    <p class="lede">Pie symbology per district across two fields — Electricity Area and Diesel Area — with a division-level reliance chart and dominance donut.</p>
+
+    <div class="layer-grid">
+      <figure class="mapfig">
+        <a href="images/Power_Spatial.png" target="_blank" rel="noopener">
+          <img src="images/Power_Spatial.png" alt="Map of irrigation area by diesel and electric power source by district in Bangladesh, Rabi 2023-24" loading="lazy">
+        </a>
+        <figcaption><span>Fig 5 — Spatial Distribution of Irrigation Area by Diesel and Electric Power</span><a class="zoomlink" href="images/Power_Spatial.png" target="_blank" rel="noopener">open full size ↗</a></figcaption>
+      </figure>
+
+      <div class="findings">
+        <div class="statrow">
+          <div class="statcard"><div class="num">53.5%</div><div class="lbl">diesel, nationally</div></div>
+          <div class="statcard"><div class="num">67%</div><div class="lbl">districts diesel-dominant</div></div>
+          <div class="statcard"><div class="num">64.2%</div><div class="lbl">Rajshahi, electric</div></div>
+        </div>
+        <ul>
+          <li>Diesel still narrowly leads electricity nationally (53.5% vs 46.5%); <strong>43 districts (67%)</strong> are diesel-dominant, only 21 electricity-dominant.</li>
+          <li>Rajshahi leads electricity adoption at <strong>64.2%</strong> — mature rural electrification and decades of STW/DTW grid connections.</li>
+          <li>Mymensingh and Chittagong sit nearly balanced, close to 50/50.</li>
+          <li>Barisal is most diesel-dependent at <strong>87.8%</strong> — poor grid connectivity in coastal chars and remote areas. Sylhet follows at 82.8%, where hilly terrain made grid extension costly.</li>
+        </ul>
+        <div class="takeaway">
+          <strong>An economic liability, not a technical one</strong>
+          Diesel dominance in two-thirds of districts costs farmers more per hectare and emits more carbon than electric pumping. Rajshahi's electric share proves the transition is achievable with grid investment — the south and Sylhet lag because infrastructure hasn't followed, not because electricity is unavailable nationally.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LAYER 5 — ZONING -->
+<section class="layer zoning" id="layer5">
+  <div class="wrap">
+    <div class="layer-head">
+      <span class="layer-num">Layer 05</span>
+      <h3 class="layer-title">Groundwater depth zoning</h3>
+    </div>
+    <p class="lede">GWL_2023 point readings, hill-tract districts (Khagrachhari, Bandarban, Rangamati) excluded by definition query — hard-rock aquifers aren't comparable to alluvial plains. Interpolated by Ordinary Kriging (spherical semivariogram), classified into four zones across 362 upazilas.</p>
+
+    <div class="zonelegend">
+      <div class="zonechip"><span class="sw" style="background:var(--safe);"></span>Safe &lt;7.6 m — 243 upazilas (67.1%)</div>
+      <div class="zonechip"><span class="sw" style="background:var(--moderate);"></span>Moderate 7.61–11.3 m — 70 (19.3%)</div>
+      <div class="zonechip"><span class="sw" style="background:var(--deep);"></span>Deep 11.31–20 m — 41 (11.3%)</div>
+      <div class="zonechip"><span class="sw" style="background:var(--critical);"></span>Critical &gt;20.1 m — 8 (2.2%)</div>
+    </div>
+
+    <div class="layer-grid" style="margin-top:36px;">
+      <figure class="mapfig">
+        <a href="images/GW_Zoning.png" target="_blank" rel="noopener">
+          <img src="images/GW_Zoning.png" alt="Groundwater depth zoning map of Bangladesh, kriging interpolation, four risk classes by upazila" loading="lazy">
+        </a>
+        <figcaption><span>Fig 6 — Groundwater Depth Zoning Map of Bangladesh</span><a class="zoomlink" href="images/GW_Zoning.png" target="_blank" rel="noopener">open full size ↗</a></figcaption>
+      </figure>
+
+      <div class="findings">
+        <ul>
+          <li>National average depth <strong>6.97 m</strong>, median 6.32 m — most upazilas remain in the safe zone.</li>
+          <li>Rajshahi and Mymensingh average over 10 m as divisional means — already moderate-to-deep on average, meaning individual hotspot upazilas run far worse.</li>
+          <li>Barisal averages just 2.8 m — shallow, but saline, so unusable for irrigation regardless.</li>
+          <li>Standard deviation of 4.1 m with a right-skewed distribution confirms most upazilas cluster shallow while a stressed tail pulls the mean up.</li>
+          <li>The 8 critical upazilas average <strong>31.45 m</strong> — early warning signals, not yet a crisis, but trending that way.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPOTLIGHT: groundwater dependency x zoning -->
+<section class="spotlight">
+  <div class="wrap">
+    <span class="kicker" style="color:#8FAEB5;">Cross-analysis · Layer 03 × Layer 05</span>
+    <h2 class="h2" style="color:#fff;">The districts pumping the most groundwater are the same ones showing the deepest water tables.</h2>
+    <div class="spot-grid">
+      <div class="spot-viz">
+        <div class="spot-row">
+          <div class="name">Rajshahi</div>
+          <div class="track"><div class="seg" style="width:99%;background:var(--ground);"></div></div>
+          <div class="pct">deep</div>
+        </div>
+        <div class="spot-row">
+          <div class="name">Mymensingh</div>
+          <div class="track"><div class="seg" style="width:86%;background:var(--ground);"></div></div>
+          <div class="pct">mod–deep</div>
+        </div>
+        <div class="spot-row">
+          <div class="name">Rangpur</div>
+          <div class="track"><div class="seg" style="width:89%;background:var(--ground);"></div></div>
+          <div class="pct">moderate</div>
+        </div>
+        <div class="spot-row">
+          <div class="name">Dhaka</div>
+          <div class="track"><div class="seg" style="width:64%;background:#3A8C7E;"></div></div>
+          <div class="pct">scattered</div>
+        </div>
+        <div class="spot-row">
+          <div class="name">Barisal</div>
+          <div class="track"><div class="seg" style="width:31%;background:#3A8C7E;"></div></div>
+          <div class="pct">safe (saline)</div>
+        </div>
+        <div class="spot-legend">
+          <span><span class="sw" style="background:var(--ground);"></span>groundwater-dependent irrigation</span>
+          <span><span class="sw" style="background:var(--critical);"></span>zoning stress, Layer 05</span>
+        </div>
+      </div>
+      <div class="spot-text">
+        <p class="punch">This is current depletion — not a future risk.</p>
+        <p>At 4,161K ha, groundwater carries 72% of national irrigation, and the northwest's near-complete coverage was built almost entirely on it. Cross-referencing Layer 03 against Layer 05 confirms the same districts pumping hardest — Rajshahi, parts of Mymensingh and Dhaka division — already sit in moderate-to-deep zoning territory as divisional averages, meaning individual hotspot upazilas run considerably worse.</p>
+        <p>Eight upazilas already average over 20 m depth, with a peak average of 31.45 m. Without extraction limits or recharge intervention, the northwest's 99% irrigation rate becomes its own biggest vulnerability — the resource it depends on most is the one it's drawing down fastest.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONCLUSION -->
+<section class="section-dark" id="conclusion">
+  <div class="wrap">
+    <span class="kicker">Conclusion</span>
+    <h2 class="h2" style="color:#fff;">The system works — but its foundation is narrower than the 72% headline suggests.</h2>
+    <p class="lede" style="max-width:760px;">Bangladesh irrigates 72% of its net cultivated land during Rabi season — an achievement built almost entirely on groundwater in the northwest, where Rajshahi, Rangpur and Mymensingh carry the system. The south sits at the opposite end, limited by salinity and terrain that tube wells cannot fix. Diesel still powers 53.5% of irrigated area, costing farmers more per hectare, while Rajshahi's 64% electric share proves the transition is achievable with grid investment. Three gaps need attention next:</p>
+
+    <div class="gapcards">
+      <div class="gapcard">
+        <span class="gtag" style="background:var(--surface-soft);color:var(--surface);">Surface water</span>
+        <h4>2.25 M non-irrigated hectares, concentrated south</h4>
+        <p>Salinity and tidal influence rule out tube wells across the coastal belt — surface-water and managed-flooding strategies are the only realistic path to closing this gap.</p>
+      </div>
+      <div class="gapcard">
+        <span class="gtag" style="background:var(--ground-soft);color:var(--ground);">Groundwater</span>
+        <h4>Regulation in the northwest, before extraction outruns recharge</h4>
+        <p>Eight upazilas already average over 20 m depth. The districts with the highest irrigation success are the same ones drawing the aquifer down annually.</p>
+      </div>
+      <div class="gapcard">
+        <span class="gtag" style="background:var(--power-soft);color:var(--power);">Power source</span>
+        <h4>Diesel-to-electric transition, south and Sylhet</h4>
+        <p>67% of districts remain diesel-dominant. Rajshahi shows what grid investment can do; closing this gap directly cuts per-hectare costs for smallholder farmers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>Exercise 03 — Irrigation Thematic Mapping, Bangladesh · Rabi 2023–24 data · CEGIS / BADC</div>
+    <div>Prepared in ArcGIS Pro · BTM (Everest 1830) · Kriging interpolation, Spatial Analyst</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var marker = document.getElementById('depthMarker');
+  var readout = document.getElementById('depthReadout');
+  var topBar = document.getElementById('topProgress');
+  var maxDepth = 32;
+
+  function zoneFor(d){
+    if(d < 7.6)  return {name:'Safe',     color:'#4C9A4A'};
+    if(d < 11.3) return {name:'Moderate', color:'#D9A03B'};
+    if(d < 20)   return {name:'Deep',     color:'#C9542C'};
+    return            {name:'Critical',  color:'#7A2E22'};
+  }
+
+  function update(){
+    var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+    var progress = scrollable > 0 ? Math.min(Math.max(window.scrollY / scrollable, 0), 1) : 0;
+    var depth = progress * maxDepth;
+    var zone = zoneFor(depth);
+
+    if(marker){
+      marker.style.top = (progress * 100) + '%';
+      marker.style.background = zone.color;
+    }
+    if(readout){
+      readout.textContent = depth.toFixed(1) + ' m · ' + zone.name;
+      readout.style.color = zone.color;
+    }
+    if(topBar){
+      topBar.style.width = (progress * 100) + '%';
+      topBar.style.background = zone.color;
+    }
+  }
+
+  window.addEventListener('scroll', update, {passive:true});
+  window.addEventListener('resize', update);
+  update();
+})();
+</script>
+
+</body>
+</html>
