@@ -242,6 +242,30 @@
   .gapcard h4{font-size:1.05rem;color:#fff;margin-bottom:8px;}
   .gapcard p{color:#B7CBCF;font-size:0.9rem;margin:0;}
 
+  /* ---- credits / submission ---- */
+  .creditgrid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:44px;}
+  @media (max-width:880px){.creditgrid{grid-template-columns:1fr;}}
+  .creditcard{
+    background:var(--paper-card);border:1px solid var(--paper-line);border-radius:12px;
+    padding:32px 30px;
+  }
+  .credit-eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:0.7rem;text-transform:uppercase;
+    letter-spacing:0.07em;color:var(--ink-soft);margin-bottom:12px;
+  }
+  .credit-org-name{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;margin-bottom:14px;}
+  .credit-desc{font-size:0.88rem;color:var(--ink-soft);line-height:1.65;}
+  .credit-divider{height:1px;background:var(--paper-line);margin:22px 0;}
+  .credit-person-name{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;}
+  .credit-person-role{font-size:0.84rem;color:var(--ink-soft);margin-top:4px;line-height:1.5;}
+  .credit-rows{margin-top:18px;display:flex;flex-direction:column;gap:9px;}
+  .credit-row{display:flex;gap:12px;align-items:baseline;font-size:0.85rem;}
+  .credit-row .clbl{
+    font-family:'IBM Plex Mono',monospace;font-size:0.66rem;text-transform:uppercase;
+    letter-spacing:0.04em;color:var(--ink-soft);width:58px;flex-shrink:0;
+  }
+  .credit-row a{text-decoration:underline;}
+
   /* ---- footer ---- */
   footer{background:#081A21;color:#7B9499;padding:48px 0;font-size:0.82rem;}
   footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px;}
@@ -306,6 +330,7 @@
       <a href="#layer4">Power</a>
       <a href="#layer5">Zoning</a>
       <a href="#conclusion">Conclusion</a>
+      <a href="#credits">Credits</a>
     </div>
   </div>
 </nav>
@@ -643,6 +668,41 @@
         <span class="gtag" style="background:var(--power-soft);color:var(--power);">Power source</span>
         <h4>Diesel-to-electric transition, south and Sylhet</h4>
         <p>67% of districts remain diesel-dominant. Rajshahi shows what grid investment can do; closing this gap directly cuts per-hectare costs for smallholder farmers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-light" id="credits">
+  <div class="wrap">
+    <span class="kicker">Submission</span>
+    <h2 class="h2">Prepared as part of an internship at CEGIS.</h2>
+
+    <div class="creditgrid">
+      <div class="creditcard">
+        <div class="credit-eyebrow">Submitted to</div>
+        <div class="credit-org-name">Agricultural and Fisheries Division</div>
+        <p class="credit-desc">Provides services in planning and management of agricultural resources including crop, soil, irrigation, fisheries and livestock. Carries out research, crop and fish modeling, drought assessment and management, food security, value chain, baseline, monitoring, impact evaluation and assessment, crop suitability, and climate change impact and greenhouse gas assessment — and prepares mitigation and adaptation plans for the agricultural sector.</p>
+        <div class="credit-divider"></div>
+        <div class="credit-person-name">Mohammad Abdur Rashid</div>
+        <div class="credit-person-role">Principal Specialist, Director (In-Charge)</div>
+        <div class="credit-rows">
+          <div class="credit-row"><span class="clbl">Email</span><a href="mailto:arashid@cegisbd.com">arashid@cegisbd.com</a></div>
+        </div>
+      </div>
+
+      <div class="creditcard">
+        <div class="credit-eyebrow">Submitted by</div>
+        <div class="credit-person-name">Deboneel Kundu Partho</div>
+        <div class="credit-person-role">Department of Irrigation and Water Management, Faculty of Agricultural Engineering &amp; Technology</div>
+        <div class="credit-divider"></div>
+        <div class="credit-rows">
+          <div class="credit-row"><span class="clbl">Institute</span><span>Bangladesh Agricultural University, Mymensingh-2202, Bangladesh</span></div>
+          <div class="credit-row"><span class="clbl">Phone</span><a href="tel:+8801782449070">+880 1782-449070</a></div>
+          <div class="credit-row"><span class="clbl">Email</span><a href="mailto:partho.2105056@bau.edu.bd">partho.2105056@bau.edu.bd</a></div>
+          <div class="credit-row"><span class="clbl">Email</span><a href="mailto:deboneel1998@gmail.com">deboneel1998@gmail.com</a></div>
+          <div class="credit-row"><span class="clbl">LinkedIn</span><a href="https://linkedin.com/in/deboneelpartho" target="_blank" rel="noopener">linkedin.com/in/deboneelpartho</a></div>
+        </div>
       </div>
     </div>
   </div>
