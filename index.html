@@ -694,9 +694,10 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
    stay perfectly normal to use. */
 #liquidContainer {
   position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0; /* NOT 100vw/100vh — vw includes the scrollbar's own width, which
+               was overshooting the real viewport by a few pixels and knocking
+               the page's scrollbar around. inset:0 on a fixed element already
+               matches the true visible viewport exactly. */
   z-index: 40; /* above ordinary page content, below nav/gauge/modals */
   overflow: hidden;
   pointer-events: none;
@@ -1688,5 +1689,6 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
   }
 })();
 </script>
+<script src="script.js"></script>
 </body>
 </html>

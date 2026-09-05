@@ -599,9 +599,20 @@ function setupGauge() {
     return { name: "CRITICAL", color: "#7E2A20" };
   }
 
+  // document.scrollingElement is the reliable cross-browser way to read the
+  // element that actually scrolls the page (documentElement in almost every
+  // real case, but this avoids the rare quirks-mode/embedding edge cases
+  // where document.documentElement.scrollHeight under-reports).
+  const scroller = document.scrollingElement || document.documentElement;
+  let lastProgress = -1;
+
   function update() {
-    const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = scrollable > 0 ? Math.min(Math.max(window.scrollY / scrollable, 0), 1) : 0;
+    const scrollable = scroller.scrollHeight - window.innerHeight;
+    const scrollY = window.scrollY || scroller.scrollTop || 0;
+    const progress = scrollable > 0 ? Math.min(Math.max(scrollY / scrollable, 0), 1) : 0;
+    if (progress === lastProgress) return;
+    lastProgress = progress;
+
     const depth = progress * maxDepth;
     const zone = zoneFor(depth);
 
@@ -615,8 +626,17 @@ function setupGauge() {
   }
 
   window.addEventListener("scroll", update, { passive: true });
+  document.addEventListener("scroll", update, { passive: true });
   window.addEventListener("resize", update);
-  update();
+
+  // Backup: some embedding/preview contexts don't reliably dispatch the
+  // 'scroll' event to window even though the page visibly scrolls. Polling
+  // scrollY every frame costs nothing (update() bails out instantly when the
+  // position hasn't changed) and guarantees the gauge can never get stuck.
+  (function poll() {
+    update();
+    requestAnimationFrame(poll);
+  })();
 }
 
 // ------------------------------------------------------------
