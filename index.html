@@ -208,7 +208,7 @@ header.hero{
 /* ===================== SECTION SHELLS ===================== */
 section{padding:76px 0;}
 .section-light{background:var(--paper);}
-.section-dark{background:var(--ink);color:var(--paper);}
+.section-dark{background:var(--ink);color:var(--paper);position:relative;overflow:hidden;}
 .kicker{
   font-family:'IBM Plex Mono',monospace;font-size:0.74rem;
   color:var(--ink-soft);margin-bottom:10px;display:block;
@@ -446,6 +446,7 @@ figure.mapfig .frame::after{
 .spotlight{
   background:linear-gradient(160deg,#0B1F1C 0%,#112B26 55%,#173C34 100%);
   color:var(--paper);padding:84px 0;border-top:1px solid rgba(255,255,255,0.08);
+  position:relative;overflow:hidden;
 }
 .spot-grid{display:grid;grid-template-columns:0.95fr 1.05fr;gap:52px;margin-top:40px;align-items:center;}
 @media (max-width:980px){.spot-grid{grid-template-columns:1fr;}}
@@ -732,6 +733,13 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
 .bubble:nth-child(4) { width: 30px; height: 30px; left: 60%; animation-duration: 11s; animation-delay: 0s; }
 .bubble:nth-child(5) { width: 25px; height: 25px; left: 75%; animation-duration: 6s; animation-delay: 3s; }
 .bubble:nth-child(6) { width: 60px; height: 60px; left: 85%; animation-duration: 9s; animation-delay: 1.5s; }
+
+.conclusion-bubble:nth-child(1) { width: 30px; height: 30px; left: 8%; animation-duration: 9s; animation-delay: 0.5s; }
+.conclusion-bubble:nth-child(2) { width: 16px; height: 16px; left: 22%; animation-duration: 6s; animation-delay: 2s; }
+.conclusion-bubble:nth-child(3) { width: 38px; height: 38px; left: 38%; animation-duration: 8s; animation-delay: 3.2s; }
+.conclusion-bubble:nth-child(4) { width: 22px; height: 22px; left: 58%; animation-duration: 12s; animation-delay: 0.8s; }
+.conclusion-bubble:nth-child(5) { width: 18px; height: 18px; left: 74%; animation-duration: 7s; animation-delay: 4s; }
+.conclusion-bubble:nth-child(6) { width: 46px; height: 46px; left: 90%; animation-duration: 10s; animation-delay: 1.8s; }
 
 @keyframes float-up {
   0% {
@@ -1096,6 +1104,12 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
 
 <!-- SPOTLIGHT -->
 <section class="spotlight">
+  <div class="bubble conclusion-bubble"></div>
+  <div class="bubble conclusion-bubble"></div>
+  <div class="bubble conclusion-bubble"></div>
+  <div class="bubble conclusion-bubble"></div>
+  <div class="bubble conclusion-bubble"></div>
+  <div class="bubble conclusion-bubble"></div>
   <div class="wrap">
     <span class="kicker" style="color:#8FAEA5;">Cross-analysis · Layer 03 × Layer 05</span>
     <h2 class="h2" style="color:#fff;">The districts pumping the most groundwater are the same ones showing the deepest water tables.</h2>
@@ -1125,6 +1139,12 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
 
 <!-- CONCLUSION -->
 <section class="section-dark" id="conclusion">
+  <div class="bubble conclusion-bubble"></div>
+  <div class="bubble conclusion-bubble"></div>
+  <div class="bubble conclusion-bubble"></div>
+  <div class="bubble conclusion-bubble"></div>
+  <div class="bubble conclusion-bubble"></div>
+  <div class="bubble conclusion-bubble"></div>
   <div class="wrap">
     <span class="kicker">Conclusion</span>
     <h2 class="h2" style="color:#fff;">The system works — but its foundation is narrower than the 72% headline suggests.</h2>
@@ -1277,7 +1297,7 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
 
   if (!gl){ initCanvas2DFallback(); return; }
 
-  var DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var DPR = Math.min(window.devicePixelRatio || 1, 1);
   var width, height;
 
   function resize(){
@@ -1322,12 +1342,12 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
     '  float hu = dh(vUv - vec2(0.0,uTexel.y));' +
     '  float hd = dh(vUv + vec2(0.0,uTexel.y));' +
     '  float lap = (hl + hr + hu + hd - 4.0*h);' +
-    '  v += lap * 0.20;' +
+    '  v += lap * 0.06;' +
     '  v *= 0.985;' +
     '  h += v;' +
-    '  h *= 0.9985;' +
+    '  h *= 0.997;' +
     '  float d = distance(vUv, uDrop.xy);' +
-    '  float drop = uDrop.z * exp(-d*d * 900.0);' +
+    '  float drop = uDrop.z * exp(-d*d * 3500.0);' +
     '  h += drop;' +
     clampLine +
     '  gl_FragColor = vec4(h' + eb + ', v' + eb + ', 0.0, 1.0);' +
@@ -1419,7 +1439,7 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
 
   // ping-pong framebuffers for the simulation state (low-res grid is plenty — it's smoothed by interpolation)
-  var SIM_W = 320, SIM_H = 180;
+  var SIM_W = 160, SIM_H = 90;
   function makeFBO(w, h, type){
     var tex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -1520,9 +1540,9 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
 
   var lastAmbient = 0;
   function maybeAmbientDrop(ts){
-    if (ts - lastAmbient > 2200 + Math.random()*2600){
+    if (ts - lastAmbient > 6000 + Math.random()*6000){
       lastAmbient = ts;
-      queueDrop(0.08 + Math.random()*0.84, 0.08 + Math.random()*0.84, 0.03 + Math.random()*0.03);
+      queueDrop(0.08 + Math.random()*0.84, 0.08 + Math.random()*0.84, 0.015 + Math.random()*0.015);
     }
   }
 
@@ -1651,7 +1671,7 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
     window.addEventListener('touchmove', function(e){ var p=pos(e); disturb(p.x,p.y,1.1); lp=p; }, {passive:true});
     window.addEventListener('touchend', function(){ down=false; });
     var lastA=0;
-    function ambient(ts){ if (ts-lastA>2600+Math.random()*2200){ lastA=ts; disturb(Math.random()*W, Math.random()*H, 0.7);} }
+    function ambient(ts){ if (ts-lastA>6000+Math.random()*6000){ lastA=ts; disturb(Math.random()*W, Math.random()*H, 0.35);} }
     function step(){
       for (var y=1;y<ROWS-1;y++) for (var x=1;x<COLS-1;x++){
         var i=idx(x,y);
@@ -1679,7 +1699,16 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
       ctx.putImageData(img,0,0);
     }
     var run=true;
-    function loop2(ts){ if(!run) return; ambient(ts||0); step(); draw(); requestAnimationFrame(loop2); }
+    var lastFrameTime = 0;
+    var FRAME_INTERVAL = 1000/30; // cap at ~30fps instead of ~60fps to cut GPU/CPU load in half
+    function loop2(ts){
+      if(!run) return;
+      ts = ts||0;
+      if (ts - lastFrameTime < FRAME_INTERVAL){ requestAnimationFrame(loop2); return; }
+      lastFrameTime = ts;
+      ambient(ts); step(); draw();
+      requestAnimationFrame(loop2);
+    }
     requestAnimationFrame(loop2);
     document.addEventListener('visibilitychange', function(){
       if (document.hidden){ run = false; }
