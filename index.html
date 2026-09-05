@@ -1289,6 +1289,13 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
   var canvas = document.getElementById('liquidCanvas');
   if (!canvas) return;
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Touch devices (phones/tablets) skip the WebGL water sim entirely — it's the heaviest
+  // part of the page, and on touch hardware it competes with scroll/gesture handling for
+  // the same thread, causing visible jank. Detect via touch support + a coarse pointer
+  // (coarse = finger, not a mouse/trackpad), so laptops with touchscreens still get the effect.
+  var isTouchDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0) &&
+    window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  if (isTouchDevice) return;
   if (reduceMotion) return;
 
   var container = canvas.parentElement;
