@@ -234,6 +234,9 @@ figure.mapfig .frame::after{
 /* two-column: map dominant left, chart+findings right, fills space fully */
 .layer-body{margin-top:36px;display:grid;grid-template-columns:1.5fr 1fr;gap:36px;align-items:stretch;}
 @media (max-width:980px){.layer-body{grid-template-columns:1fr;}}
+.layer-body-solo{grid-template-columns:1fr;}
+.layer-body-solo .side-panel{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start;}
+@media (max-width:820px){.layer-body-solo .side-panel{grid-template-columns:1fr;}}
 .layer-body figure.mapfig{display:flex;flex-direction:column;height:100%;}
 .layer-body figure.mapfig .frame{flex:1;display:flex;align-items:center;justify-content:center;}
 .layer-body figure.mapfig img{width:100%;height:100%;object-fit:contain;}
@@ -600,13 +603,7 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
       </div>
     </div>
 
-    <div class="layer-body" style="margin-top:8px;">
-      <figure class="mapfig">
-        <div class="frame" data-lightbox data-img="images/donut_combined_NCA_TIA_NIA.png" data-cap="Fig 2 — District-wise Classification of Irrigation Variables">
-          <img src="images/donut_combined_NCA_TIA_NIA.png" alt="District-wise natural-breaks classification for net cultivated, irrigated and non-irrigated area" loading="lazy">
-        </div>
-        <figcaption><span>Fig 2 — District-wise Classification of Irrigation Variables</span><button class="zoomlink" data-lightbox data-img="images/donut_combined_NCA_TIA_NIA.png" data-cap="Fig 2 — District-wise Classification of Irrigation Variables">open full size ↗</button></figcaption>
-      </figure>
+    <div class="layer-body layer-body-solo" style="margin-top:8px;">
       <div class="side-panel">
         <div class="chart-card">
           <h4>District distribution by class</h4>
@@ -619,8 +616,8 @@ a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var
           <div class="chart-body" id="chart-nca"></div>
         </div>
         <div class="takeaway">
-          <strong>Reading the two views together</strong>
-          The map shows where the pattern sits geographically; this chart shows how districts distribute statistically. Coverage is genuinely high in the northwest — flat terrain, shallow groundwater, dense tube-well coverage — but a structurally resistant tail of coastal-saline and hilly districts keeps the national non-irrigated figure from falling further.
+          <strong>Reading the district-level pattern</strong>
+          Coverage is genuinely high in the northwest — flat terrain, shallow groundwater, dense tube-well coverage — but a structurally resistant tail of coastal-saline and hilly districts keeps the national non-irrigated figure from falling further.
         </div>
       </div>
     </div>
